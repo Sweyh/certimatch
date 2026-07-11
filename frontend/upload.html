@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Upload Certificate | CertiMatch</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+
+<header class="dashboard-header">
+  <div class="logo">CertiMatch</div>
+  <nav class="nav-buttons">
+    <a href="/dashboard/" class="nav-btn">Dashboard</a>
+    <a href="/upload/"    class="nav-btn active-btn">Upload</a>
+    <a href="/jobs/"      class="nav-btn">Jobs</a>
+    <a href="/salary/"    class="nav-btn">Salary</a>
+    <a href="/skillgap/"  class="nav-btn">Skill Gap</a>
+    <a href="/"     class="nav-btn logout-btn" onclick="logout()">Logout</a>
+  </nav>
+</header>
+
+<div class="hero" style="padding:50px 24px;">
+  <h1>Upload Your Certificates 📄</h1>
+  <p>We'll extract your skills using NLP and personalize your dashboard</p>
+</div>
+
+<section class="upload-section" style="margin-top:-30px;">
+  <div class="upload-card">
+    <h2>Select Certificate</h2>
+    <p>Upload a PDF or image of your certificate</p>
+
+    <div class="upload-area" onclick="document.getElementById('certInput').click()">
+      <input type="file" id="certInput" accept=".pdf,.jpg,.jpeg,.png" />
+      <div class="upload-icon">📁</div>
+      <p><strong>Click to browse</strong> or drag & drop</p>
+      <p style="margin-top:6px;font-size:0.8rem;">PDF, JPG, PNG supported</p>
+    </div>
+
+    <div id="fileName" style="font-size:0.85rem;color:#64748b;margin-bottom:12px;min-height:20px;"></div>
+
+    <button class="btn primary btn-block" onclick="extractSkills()">
+      Extract Skills
+    </button>
+
+    <div class="skills-box" id="skillsBox">
+      <h3>✅ Extracted Skills</h3>
+      <div id="skillsList"></div>
+      <button class="btn primary btn-block" style="margin-top:18px;" onclick="goToDashboard()">
+        Continue to Dashboard →
+      </button>
+    </div>
+  </div>
+</section>
+
+<script src="/static/js/upload.js"></script>
+<script>
+function logout() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('certimatch_user');
+  window.location.href = 'index.html';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Users | CertiMatch</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+<header class="dashboard-header">
+  <div class="logo">CertiMatch Admin</div>
+  <nav class="nav-buttons">
+    <a href="/admin-users/" class="nav-btn active-btn">Users</a>
+    <a href="/dashboard/" class="nav-btn">User Dashboard</a>
+    <a href="/admin/" class="nav-btn">Django Admin</a>
+    <a href="/" class="nav-btn logout-btn" onclick="logout()">Logout</a>
+  </nav>
+</header>
+
+<div class="hero">
+  <h1>Admin User List</h1>
+  <p>View all registered users and their activity summary</p>
+</div>
+
+<div class="section">
+  <div id="summaryCards" class="stats-grid"></div>
+</div>
+
+<div class="section">
+  <h2>Registered Users</h2>
+  <div id="usersTableWrap" style="overflow-x:auto;">
+    <p style="color:#64748b;">Loading users...</p>
+  </div>
+</div>
+
+<script>
+const API = 'http://127.0.0.1:8000/api';
+
+function renderSummary(totalUsers, adminUsers, totalCertificates, totalApplications) {
+  const summaryCards = document.getElementById('summaryCards');
+  summaryCards.innerHTML = '';
+
+  [
+    { icon: '👥', num: totalUsers, label: 'Total Users' },
+    { icon: '🛡️', num: adminUsers, label: 'Admin Users' },
+    { icon: '📄', num: totalCertificates, label: 'Certificates' },
+    { icon: '📝', num: totalApplications, label: 'Applications' },
+  ].forEach((item) => {
+    const card = document.createElement('div');
+    card.className = 'stat-card';
+    card.innerHTML = `<div style="font-size:2rem;">${item.icon}</div><div class="stat-num">${item.num}</div><div class="stat-label">${item.label}</div>`;
+    summaryCards.appendChild(card);
+  });
+}
+
+function renderUsers(users) {
+  const wrap = document.getElementById('usersTableWrap');
+
+  if (!users.length) {
+    wrap.innerHTML = '<p style="color:#64748b;">No users found.</p>';
+    return;
+  }
+
+  wrap.innerHTML = `
+    <table style="width:100%; border-collapse:collapse; background:#fff; border-radius:16px; overflow:hidden;">
+      <thead>
+        <tr style="background:#eff6ff; text-align:left;">
+          <th style="padding:14px;">Name</th>
+          <th style="padding:14px;">Email</th>
+          <th style="padding:14px;">Role</th>
+          <th style="padding:14px;">Certificates</th>
+          <th style="padding:14px;">Applications</th>
+          <th style="padding:14px;">Joined</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${users.map((user) => `
+          <tr style="border-top:1px solid #e2e8f0;">
+            <td style="padding:14px;">${user.name || '-'}</td>
+            <td style="padding:14px;">${user.email}</td>
+            <td style="padding:14px;">${user.is_admin ? 'Admin' : 'User'}</td>
+            <td style="padding:14px;">${user.certificates_count}</td>
+            <td style="padding:14px;">${user.applications_count}</td>
+            <td style="padding:14px;">${new Date(user.created_at).toLocaleDateString()}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+async function init() {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = '/login/';
+    return;
+  }
+
+  try {
+    const meResponse = await fetch(`${API}/auth/me/`, {
+      headers: { Authorization: `Token ${token}` },
+    });
+    const meData = await meResponse.json();
+
+    if (!meResponse.ok || !meData.is_admin) {
+      window.location.href = '/dashboard/';
+      return;
+    }
+
+    const res = await fetch(`${API}/admin/users/`, {
+      headers: { Authorization: `Token ${token}` },
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      document.getElementById('usersTableWrap').innerHTML = `<p style="color:#ef4444;">${data.error || 'Could not load users.'}</p>`;
+      return;
+    }
+
+    const users = data.results || [];
+    const adminUsers = users.filter((user) => user.is_admin).length;
+    const totalCertificates = users.reduce((sum, user) => sum + (user.certificates_count || 0), 0);
+    const totalApplications = users.reduce((sum, user) => sum + (user.applications_count || 0), 0);
+
+    renderSummary(users.length, adminUsers, totalCertificates, totalApplications);
+    renderUsers(users);
+  } catch (error) {
+    document.getElementById('usersTableWrap').innerHTML = '<p style="color:#ef4444;">Cannot connect to server. Is Django running?</p>';
+  }
+}
+
+async function logout() {
+  const token = localStorage.getItem('token');
+  if (token) {
+    await fetch(`${API}/auth/logout/`, {
+      method: 'POST',
+      headers: { Authorization: `Token ${token}` },
+    }).catch(() => {});
+  }
+  localStorage.clear();
+  window.location.href = '/';
+}
+
+init();
+</script>
+</body>
+</html>

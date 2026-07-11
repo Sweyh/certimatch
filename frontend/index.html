@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>CertiMatch Careers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="main-header">
+  <div class="logo">CertiMatch</div>
+  <nav>
+    <a href="/login/" class="btn">Login</a>
+    <a href="/signup/" class="btn">Sign Up</a>
+  </nav>
+</header>
+
+<!-- SLIDER -->
+<section class="slider">
+  <div class="slide active">
+    <h1>Your Career Starts Here</h1>
+    <p>AI-powered job matching for certified engineers</p>
+  </div>
+  <div class="slide">
+    <h1>Upload Your Certificates</h1>
+    <p>Get skills extracted automatically</p>
+  </div>
+  <div class="slide">
+    <h1>Get Best Job Matches</h1>
+    <p>Find roles that match your real skills</p>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="feature-box">
+    <h3>🔍 Research</h3>
+    <p>Explore job market trends and in-demand skills across top companies.</p>
+    <button onclick="showInfo('research')">Read More</button>
+  </div>
+  <div class="feature-box">
+    <h3>🤖 Innovation</h3>
+    <p>AI-powered career matching that learns from your certificates.</p>
+    <button onclick="showInfo('innovation')">Read More</button>
+  </div>
+  <div class="feature-box">
+    <h3>🗂️ Portfolio</h3>
+    <p>Build and showcase your verified skill profile to employers.</p>
+    <button onclick="showInfo('portfolio')">Read More</button>
+  </div>
+  <div class="feature-box">
+    <h3>🎯 Our Aim</h3>
+    <p>Bridge the gap between certified skills and real job opportunities.</p>
+    <button onclick="showInfo('aim')">Read More</button>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="about">
+  <h2>About CertiMatch</h2>
+  <p>
+    CertiMatch Careers helps engineering graduates find suitable job roles
+    using AI and NLP. Upload your certificates and let our platform extract
+    your skills, match you with top companies, and guide your career growth.
+  </p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-section">
+    <h4>Contact</h4>
+    <p>certimatch@gmail.com</p>
+  </div>
+  <div class="footer-section">
+    <h4>Follow Us</h4>
+    <p>LinkedIn | GitHub</p>
+  </div>
+</footer>
+
+<!-- MODAL -->
+<div id="infoModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <h2 id="modalTitle"></h2>
+    <p id="modalText"></p>
+  </div>
+</div>
+
+<script src="/static/js/slider.js"></script>
+<script>
+  const INFO = {
+    research: {
+      title: '🔍 Research',
+      text: 'We analyze thousands of job listings across top tech companies to identify the most in-demand skills. Our platform keeps you informed about market trends so you can make smart career decisions.'
+    },
+    innovation: {
+      title: '🤖 Innovation',
+      text: 'CertiMatch uses AI and NLP to automatically extract skills from your certificates and intelligently match you to roles where you\'ll thrive — saving you hours of manual job hunting.'
+    },
+    portfolio: {
+      title: '🗂️ Portfolio',
+      text: 'Your skill profile is built from verified certificates, giving you a credible and structured portfolio that stands out to recruiters and hiring managers.'
+    },
+    aim: {
+      title: '🎯 Our Aim',
+      text: 'We believe every engineer deserves a job that matches their actual skills. CertiMatch bridges the gap between what you know and what employers need — making career growth accessible to all.'
+    }
+  };
+
+  function showInfo(type) {
+    const data = INFO[type];
+    if (!data) return;
+    document.getElementById('modalTitle').textContent = data.title;
+    document.getElementById('modalText').textContent  = data.text;
+    document.getElementById('infoModal').classList.add('show');
+  }
+
+  function closeModal() {
+    document.getElementById('infoModal').classList.remove('show');
+  }
+
+  // Close modal on outside click
+  document.getElementById('infoModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+</script>
+
+</body>
+</html>

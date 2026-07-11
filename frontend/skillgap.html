@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Skill Gap | CertiMatch</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header class="dashboard-header">
+
+    <div class="logo">CertiMatch</div>
+
+    <nav class="nav-buttons">
+
+        <a href="/dashboard/" class="nav-btn">Dashboard</a>
+        <a href="/upload/" class="nav-btn">Upload</a>
+        <a href="/jobs/" class="nav-btn">Jobs</a>
+        <a href="/salary/" class="nav-btn">Salary</a>
+
+        <a href="/skillgap/" class="nav-btn active-btn">
+            Skill Gap
+        </a>
+
+        <a href="/"
+           class="nav-btn logout-btn"
+           onclick="logout()">
+            Logout
+        </a>
+
+    </nav>
+
+</header>
+
+
+<!-- MAIN -->
+<section class="skill-section">
+
+    <div class="skill-box">
+
+        <h2>Skill Gap Analysis</h2>
+
+        <p>
+            Analyze the skills you need to improve for your target job
+        </p>
+
+
+        <!-- TARGET ROLE -->
+        <div class="form-group">
+            <input type="text"
+                   id="targetRole"
+                   placeholder="Target Job Role (e.g. Data Scientist)">
+        </div>
+
+        <button onclick="analyzeSkill()"
+                class="btn primary btn-block">
+            Analyze Skill Gap
+        </button>
+
+
+        <!-- RESULT -->
+        <div id="skillResult" class="skill-result"></div>
+
+    </div>
+
+    <!-- MATCHING JOBS SECTION -->
+    <div class="skill-box" style="margin-top:24px;">
+        <h2>Jobs Matching Your Skills</h2>
+        <p>Based on your current skills, here are recommended job opportunities</p>
+        <div id="matchingJobs" class="jobs-grid"></div>
+    </div>
+
+</section>
+
+
+<script src="/static/js/skillgap.js"></script>
+
+<script>
+async function logout(){
+    const token = localStorage.getItem('token');
+    if (token) await fetch('http://127.0.0.1:8000/api/auth/logout/', { method:'POST', headers:{'Authorization':`Token ${token}`} }).catch(()=>{});
+    localStorage.clear();
+    window.location.href = '/';
+}
+
+// Auto-load target role from localStorage if available
+window.addEventListener('load', () => {
+    const savedRole = localStorage.getItem('targetRole');
+    if (savedRole) {
+        document.getElementById('targetRole').value = savedRole;
+        analyzeSkill();
+        localStorage.removeItem('targetRole');
+    }
+    loadMatchingJobs();
+});
+</script>
+
+</body>
+</html>

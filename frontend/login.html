@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login | CertiMatch</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+
+<body class="auth-body">
+
+<div class="auth-container">
+
+    <h2>Welcome Back</h2>
+
+    <p class="auth-subtitle">
+        Login to continue your career journey
+    </p>
+
+    <!-- LOGIN FORM -->
+    <form id="loginForm">
+
+        <div class="form-group">
+            <input type="email"
+                   id="loginEmail"
+                   placeholder="Email Address"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <input type="password"
+                   id="loginPassword"
+                   placeholder="Password"
+                   required>
+        </div>
+
+        <button type="submit"
+                class="btn primary btn-block">
+            Login
+        </button>
+
+    </form>
+
+    <p class="auth-footer">
+        Don’t have an account?
+        <a href="/signup/">Create Account</a>
+    </p>
+
+</div>
+
+
+<!-- AUTH SCRIPT (IMPORTANT: Keep at bottom) -->
+<script src="/static/js/auth.js"></script>
+
+</body>
+</html>

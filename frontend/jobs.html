@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Job Matches | CertiMatch</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+
+<header class="dashboard-header">
+  <div class="logo">CertiMatch</div>
+  <nav class="nav-buttons">
+    <a href="/dashboard/" class="nav-btn">Dashboard</a>
+    <a href="/upload/"    class="nav-btn">Upload</a>
+    <a href="/jobs/"      class="nav-btn active-btn">Jobs</a>
+    <a href="/salary/"    class="nav-btn">Salary</a>
+    <a href="/skillgap/"  class="nav-btn">Skill Gap</a>
+    <a href="/"     class="nav-btn logout-btn" onclick="logout()">Logout</a>
+  </nav>
+</header>
+
+<section class="jobs-section">
+  <h2>Recommended Jobs</h2>
+  <p>Based on your certified skills and AI analysis</p>
+
+  <div class="filter-row">
+    <button class="filter-btn active-filter" data-filter="all">All Jobs</button>
+    <button class="filter-btn" data-filter="eligible">Eligible ✅</button>
+    <button class="filter-btn" data-filter="partial">Partial Match ⚡</button>
+  </div>
+
+  <div id="jobList" class="job-container"></div>
+</section>
+
+<script src="/static/js/jobs.js"></script>
+<script>
+function logout() {
+  localStorage.removeItem('certimatch_user');
+  window.location.href = 'index.html';
+}
+</script>
+
+</body>
+</html>

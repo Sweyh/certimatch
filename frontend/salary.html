@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Salary Prediction | CertiMatch</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header class="dashboard-header">
+
+    <div class="logo">CertiMatch</div>
+
+    <nav class="nav-buttons">
+
+        <a href="/dashboard/" class="nav-btn">Dashboard</a>
+        <a href="/upload/" class="nav-btn">Upload</a>
+        <a href="/jobs/" class="nav-btn">Jobs</a>
+
+        <a href="/salary/" class="nav-btn active-btn">
+            Salary
+        </a>
+
+        <a href="/"
+           class="nav-btn logout-btn"
+           onclick="logout()">
+            Logout
+        </a>
+
+    </nav>
+
+</header>
+
+
+<!-- MAIN -->
+<section class="salary-section">
+
+    <div class="salary-box">
+
+        <h2>Salary Prediction</h2>
+
+        <p>
+            Enter your details to predict expected salary
+        </p>
+
+
+        <!-- FORM -->
+        <form id="salaryForm">
+
+            <div class="form-group">
+                <input type="text"
+                       id="role"
+                       placeholder="Job Role (e.g. Data Scientist)"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <input type="text"
+                       id="skills"
+                       placeholder="Skills (Python, ML, SQL)"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <input type="number"
+                       id="experience"
+                       placeholder="Experience (Years)"
+                       min="0"
+                       max="20"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <input type="text"
+                       id="location"
+                       placeholder="Location (Bangalore)"
+                       required>
+            </div>
+
+            <button type="submit"
+                    class="btn primary btn-block">
+                Predict Salary
+            </button>
+
+        </form>
+
+
+        <!-- RESULT -->
+        <div id="salaryResult" class="salary-result"></div>
+
+    </div>
+
+</section>
+
+
+<script src="/static/js/salary.js"></script>
+
+<script>
+function logout(){
+    localStorage.clear();
+}
+</script>
+
+</body>
+</html>

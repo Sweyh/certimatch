@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Dashboard | CertiMatch</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+<header class="dashboard-header">
+  <div class="logo">CertiMatch</div>
+  <nav class="nav-buttons">
+    <a href="/dashboard/" class="nav-btn active-btn">Dashboard</a>
+    <a href="/upload/" class="nav-btn">Upload</a>
+    <a href="/jobs/" class="nav-btn">Jobs</a>
+    <a href="/salary/" class="nav-btn">Salary</a>
+    <a href="/skillgap/" class="nav-btn">Skill Gap</a>
+    <a href="/" class="nav-btn logout-btn" onclick="logout()">Logout</a>
+  </nav>
+</header>
+
+<div class="hero" id="heroSection">
+  <h1 id="welcomeMsg">Welcome</h1>
+  <p>Your personalized career dashboard</p>
+</div>
+
+<div class="stats-grid" id="statsGrid"></div>
+
+<div class="section">
+  <h2>Skills Detected from Your Certificates</h2>
+  <div id="skillsContainer" style="padding:0 0 20px;display:flex;flex-wrap:wrap;gap:8px;"></div>
+</div>
+
+<div class="section">
+  <h2>Recommended Jobs for You</h2>
+  <div class="jobs-grid" id="jobsContainer">
+    <p style="color:#64748b;">Loading recommendations...</p>
+  </div>
+</div>
+
+<script>
+const API = 'http://127.0.0.1:8000/api';
+
+function renderStats(skillsCount = 0, certificatesCount = 0, jobsCount = 0, eligibleCount = 0) {
+  const statsGrid = document.getElementById('statsGrid');
+  statsGrid.innerHTML = '';
+
+  [
+    { icon: '🧠', num: skillsCount, label: 'Skills Detected' },
+    { icon: '📄', num: certificatesCount, label: 'Certificates Uploaded' },
+    { icon: '💼', num: jobsCount, label: 'Job Matches' },
+    { icon: '✅', num: eligibleCount, label: 'Eligible Roles' },
+  ].forEach((stat) => {
+    const card = document.createElement('div');
+    card.className = 'stat-card';
+    card.innerHTML = `<div style="font-size:2rem;">${stat.icon}</div><div class="stat-num">${stat.num}</div><div class="stat-label">${stat.label}</div>`;
+    statsGrid.appendChild(card);
+  });
+}
+
+function renderJobsMessage(message) {
+  document.getElementById('jobsContainer').innerHTML = `<p style="color:#64748b; padding: 20px;">${message}</p>`;
+}
+
+async function init() {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = '/login/';
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API}/auth/me/`, {
+      headers: { Authorization: `Token ${token}` },
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      window.location.href = '/login/';
+      return;
+    }
+
+    document.getElementById('welcomeMsg').textContent = `Welcome, ${data.full_name || data.email} 👋`;
+
+    const skills = data.skills || [];
+    const certificatesCount = data.certificates_count || 0;
+    const skillsContainer = document.getElementById('skillsContainer');
+
+    renderStats(skills.length, certificatesCount, 0, 0);
+
+    if (skills.length === 0) {
+      skillsContainer.innerHTML = '<p style="color:#64748b;">No skills yet. <a href="/upload/">Upload a certificate</a>!</p>';
+    } else {
+      skillsContainer.innerHTML = '';
+      skills.forEach((skill) => {
+        const span = document.createElement('span');
+        span.className = 'skill-tag';
+        span.textContent = skill;
+        skillsContainer.appendChild(span);
+      });
+    }
+
+    if (certificatesCount === 0) {
+      renderStats(0, 0, 0, 0);
+      renderJobsMessage('No job matches yet. <a href="/upload/">Upload your first certificate</a> to start skill detection and job matching.');
+      return;
+    }
+
+    if (skills.length === 0) {
+      renderStats(0, certificatesCount, 0, 0);
+      renderJobsMessage('Certificates uploaded, but no skills were detected yet. <a href="/upload/">Upload another certificate</a> to continue.');
+      return;
+    }
+
+    const jobsContainer = document.getElementById('jobsContainer');
+    const jobsResponse = await fetch(`${API}/jobs/recommendations/`, {
+      headers: { Authorization: `Token ${token}` },
+    });
+    const jobsData = await jobsResponse.json();
+
+    if (!jobsResponse.ok) {
+      console.error('API Error:', jobsData);
+      jobsContainer.innerHTML = `<p style="color:#ef4444;">Error loading jobs: ${jobsData.message || 'Unknown error'}</p>`;
+      return;
+    }
+
+    const jobs = jobsData.results || [];
+    const eligibleCount = jobs.filter((job) => job.missing_skills && job.missing_skills.length === 0).length;
+    renderStats(skills.length, certificatesCount, jobs.length, eligibleCount);
+
+    jobsContainer.innerHTML = '';
+    if (jobs.length === 0) {
+      renderJobsMessage('No job matches yet. <a href="/upload/">Upload more certificates</a> to find more matches!');
+      return;
+    }
+
+    jobs.slice(0, 10).forEach((job) => {
+      const eligible = job.missing_skills && job.missing_skills.length === 0;
+      const card = document.createElement('div');
+      card.className = 'job-card' + (eligible ? ' eligible-card' : '');
+      card.innerHTML = `
+        <div class="job-header">
+          <div class="company-initial">${job.company[0].toUpperCase()}</div>
+          <div><h3>${job.company}</h3><p class="job-role">${job.job_title}</p></div>
+          <span class="match-badge ${eligible ? 'badge-green' : job.match_score >= 50 ? 'badge-orange' : 'badge-red'}">${job.match_score}% match</span>
+        </div>
+        <div class="job-meta"><span>💰 ₹${job.salary_lpa} LPA</span></div>
+        <div class="skill-tags">
+          ${(job.skills_list || []).map((skill) => {
+            const isMissing = job.missing_skills && job.missing_skills.includes(skill.toLowerCase());
+            return `<span class="tag ${isMissing ? 'tag-red' : 'tag-green'}">${skill}</span>`;
+          }).join('')}
+        </div>
+        ${job.missing_skills && job.missing_skills.length ? `
+          <div style="margin-top:12px; padding:10px; background:#fef3c7; border-radius:6px; border-left:4px solid #f59e0b;">
+            <p style="margin:0 0 8px; font-size:0.85rem; color:#92400e;"><strong>Skill Gap:</strong></p>
+            <p style="margin:0; font-size:0.85rem; color:#b45309;"><strong>${job.missing_skills.join(', ')}</strong></p>
+          </div>
+        ` : '<p style="font-size:0.83rem;color:#10b981;margin-top:8px; margin-bottom:8px;">All skills matched!</p>'}
+        <div style="margin-top:12px; display:flex; gap:8px;">
+          <button class="apply-btn" ${eligible ? '' : 'disabled'} onclick="applyJob(${job.id}, '${job.company.replace(/'/g, "\\'")}', '${job.job_title.replace(/'/g, "\\'")}')">
+            ${eligible ? 'Apply Now' : 'Skill Gap'}
+          </button>
+          <button class="apply-btn" style="background:#3b82f6;" onclick="analyzeGap('${job.job_title.replace(/'/g, "\\'")}')">
+            Gap Analysis
+          </button>
+        </div>
+      `;
+      jobsContainer.appendChild(card);
+    });
+  } catch (error) {
+    console.error('Init error:', error);
+    renderStats(0, 0, 0, 0);
+    document.getElementById('jobsContainer').innerHTML = '<p style="color:red;">Cannot connect to server. Is Django running?</p>';
+  }
+}
+
+async function applyJob(id, company, role) {
+  const token = localStorage.getItem('token');
+  try {
+    const res = await fetch(`${API}/jobs/${id}/apply/`, {
+      method: 'POST',
+      headers: { Authorization: `Token ${token}` },
+    });
+    const data = await res.json();
+    alert(data.message || 'Application submitted!');
+  } catch (error) {
+    alert('Error applying for job. Please try again.');
+  }
+}
+
+function analyzeGap(jobTitle) {
+  localStorage.setItem('targetRole', jobTitle);
+  window.location.href = '/skillgap/';
+}
+
+async function logout() {
+  const token = localStorage.getItem('token');
+  if (token) {
+    await fetch(`${API}/auth/logout/`, {
+      method: 'POST',
+      headers: { Authorization: `Token ${token}` },
+    }).catch(() => {});
+  }
+  localStorage.clear();
+  window.location.href = '/';
+}
+
+init();
+</script>
+</body>
+</html>
